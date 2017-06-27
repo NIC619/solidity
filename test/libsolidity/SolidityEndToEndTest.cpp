@@ -9741,6 +9741,19 @@ BOOST_AUTO_TEST_CASE(inlineasm_empty_let)
 	BOOST_CHECK(callContractFunction("f()") == encodeArgs(u256(0), u256(0)));
 }
 
+BOOST_AUTO_TEST_CASE(function_types_sig)
+{
+	char const* sourceCode = R"(
+		contract C {
+			function f() returns (bytes4) {
+				return this.f.sig;
+			}
+		}
+	)";
+	compileAndRun(sourceCode, 0, "C");
+	BOOST_CHECK(callContractFunction("f()") == fromHex("0x26121ff0"));
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 }
