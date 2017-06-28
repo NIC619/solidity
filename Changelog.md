@@ -2,7 +2,7 @@
 
 Features:
  * C API (``jsonCompiler``): Export the ``license`` method.
- * Code Generator: Added ``.sig`` member on external function types to retrieve their signature.
+ * Code Generator: Added ``.selector`` member on external function types to retrieve their signature.
  * Inline Assembly: Show useful error message if trying to access calldata variables.
  * Inline Assembly: Support variable declaration without initial value (defaults to 0).
  * Type Checker: Disallow value transfers to contracts without a payable fallback function.
