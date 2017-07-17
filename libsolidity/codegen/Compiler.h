@@ -25,6 +25,7 @@
 #include <ostream>
 #include <functional>
 #include <libsolidity/codegen/CompilerContext.h>
+#include <libsolidity/interface/OptimiserSettings.h>
 #include <libevmasm/Assembly.h>
 
 namespace dev {
@@ -33,48 +34,7 @@ namespace solidity {
 class Compiler
 {
 public:
-	struct OptimiserSettings
-	{
-		/// Reset to defaults.
-		void reset()
-		{
-			runOrderLiterals = false;
-			runPeephole = false;
-			runDeduplicate = false;
-			runCSE = false;
-			runConstantOptimiser = false;
-			constantOptimiserTradeoff = 200;
-		}
-
-		/// Enable basic optimisations.
-		void enableBasic()
-		{
-			reset();
-			runPeephole = true;
-			runDeduplicate = true;
-			runCSE = true;
-		}
-
-		/// Enable all optimisations.
-		void enableAll()
-		{
-			enableBasic();
-			runOrderLiterals = true;
-			runConstantOptimiser = true;
-		}
-
-		bool runOrderLiterals = false;
-		bool runPeephole = false;
-		bool runDeduplicate = false;
-		bool runCSE = false;
-		bool runConstantOptimiser = false;
-		/// The tradeoff specifies an estimate on how often each opcode in this assembly
-		/// will be executed, i.e. use a small value to optimiser for size and a large value
-		/// to optimise for runtime gas usage.
-		size_t constantOptimiserTradeoff = 200;
-	};
-
-	explicit Compiler(Compiler::OptimiserSettings const _settings):
+	explicit Compiler(OptimiserSettings const _settings):
 		m_optimiserSettings(_settings),
 		m_runtimeContext(),
 		m_context(&m_runtimeContext)
