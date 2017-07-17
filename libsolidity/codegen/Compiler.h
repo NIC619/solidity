@@ -35,6 +35,34 @@ class Compiler
 public:
 	struct OptimiserSettings
 	{
+		/// Reset to defaults.
+		void reset()
+		{
+			runOrderLiterals = false;
+			runPeephole = false;
+			runDeduplicate = false;
+			runCSE = false;
+			runConstantOptimiser = false;
+			constantOptimiserTradeoff = 200;
+		}
+
+		/// Enable basic optimisations.
+		void enableBasic()
+		{
+			reset();
+			runPeephole = true;
+			runDeduplicate = true;
+			runCSE = true;
+		}
+
+		/// Enable all optimisations.
+		void enableAll()
+		{
+			enableBasic();
+			runOrderLiterals = true;
+			runConstantOptimiser = true;
+		}
+
 		bool runOrderLiterals = false;
 		bool runPeephole = false;
 		bool runDeduplicate = false;
