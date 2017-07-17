@@ -87,8 +87,7 @@ void CompilerStack::reset(bool _keepSources)
 		m_stackState = Empty;
 		m_sources.clear();
 	}
-	m_optimize = false;
-	m_optimizeRuns = 200;
+	m_optimiserSettings.reset();
 	m_globalContext.reset();
 	m_scopes.clear();
 	m_sourceOrder.clear();
@@ -661,17 +660,7 @@ void CompilerStack::compileContract(
 	for (auto const* dependency: _contract.annotation().contractDependencies)
 		compileContract(*dependency, _compiledContracts);
 
-	Compiler::OptimiserSettings optimiserSettings;
-	optimiserSettings.runPeephole = true;
-	optimiserSettings.runDeduplicate = true;
-	optimiserSettings.runCSE = true;
-	if (m_optimize)
-	{
-		optimiserSettings.runOrderLiterals = true;
-		optimiserSettings.runConstantOptimiser = true;
-		optimiserSettings.constantOptimiserTradeoff = m_optimizeRuns;
-	}
-	shared_ptr<Compiler> compiler = make_shared<Compiler>(optimiserSettings);
+	shared_ptr<Compiler> compiler = make_shared<Compiler>(*m_optimiserSettings);
 	Contract& compiledContract = m_contracts.at(_contract.fullyQualifiedName());
 	string onChainMetadata = createOnChainMetadata(compiledContract);
 	bytes cborEncodedMetadata =
@@ -715,7 +704,7 @@ void CompilerStack::compileContract(
 
 	try
 	{
-		Compiler cloneCompiler(optimiserSettings);
+		Compiler cloneCompiler(*m_optimiserSettings);
 		cloneCompiler.compileClone(_contract, _compiledContracts);
 		compiledContract.cloneObject = cloneCompiler.assembledObject();
 	}
@@ -794,8 +783,10 @@ string CompilerStack::createOnChainMetadata(Contract const& _contract) const
 			);
 		}
 	}
-	meta["settings"]["optimizer"]["enabled"] = m_optimize;
-	meta["settings"]["optimizer"]["runs"] = m_optimizeRuns;
+	/// Backwards compatibility
+	meta["settings"]["optimizer"]["enabled"] = m_optimiserSettings->runConstantOptimiser;
+	solAssert(m_optimiserSettings->constantOptimiserTradeoff < std::numeric_limits<Json::LargestUInt>::max(), "");
+	meta["settings"]["optimizer"]["runs"] = Json::Value(Json::LargestUInt(m_optimiserSettings->constantOptimiserTradeoff));
 	meta["settings"]["compilationTarget"][_contract.contract->sourceUnitName()] =
 		_contract.contract->annotation().canonicalName;
 

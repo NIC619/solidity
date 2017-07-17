@@ -37,6 +37,7 @@
 #include <libevmasm/LinkerObject.h>
 #include <libsolidity/interface/ErrorReporter.h>
 #include <libsolidity/interface/ReadFile.h>
+#include <libsolidity/interface/OptimiserSettings.h>
 
 namespace dev
 {
@@ -102,10 +103,22 @@ public:
 		m_libraries = _libraries;
 	}
 
+	void setOptimiserSettings(OptimiserSettings const& _settings)
+	{
+		m_optimiserSettings = std::make_shared<OptimiserSettings>(_settings);
+	}
+
 	void setOptimiserSettings(bool _optimize = false, unsigned _runs = 200)
 	{
-		m_optimize = _optimize;
-		m_optimizeRuns = _runs;
+		OptimiserSettings settings;
+		if (_optimize)
+		{
+			settings.enableAll();
+			settings.constantOptimiserTradeoff = _runs;
+		}
+		else
+			settings.enableBasic();
+		setOptimiserSettings(settings);
 	}
 
 	/// Resets the compiler to a state where the sources are not parsed or even removed.
@@ -280,8 +293,7 @@ private:
 	};
 
 	ReadFile::Callback m_readFile;
-	bool m_optimize = false;
-	unsigned m_optimizeRuns = 200;
+	std::shared_ptr<OptimiserSettings> m_optimiserSettings;
 	std::map<std::string, h160> m_libraries;
 	/// list of path prefix remappings, e.g. mylibrary: github.com/ethereum = /usr/local/ethereum
 	/// "context:prefix=target"
