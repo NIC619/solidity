@@ -783,10 +783,15 @@ string CompilerStack::createOnChainMetadata(Contract const& _contract) const
 			);
 		}
 	}
-	/// Backwards compatibility
-	meta["settings"]["optimizer"]["enabled"] = m_optimiserSettings->runConstantOptimiser;
+
+	meta["settings"]["optimizer"]["orderLiterals"] = m_optimiserSettings->runOrderLiterals;
+	meta["settings"]["optimizer"]["peephole"] = m_optimiserSettings->runPeephole;
+	meta["settings"]["optimizer"]["deduplicate"] = m_optimiserSettings->runDeduplicate;
+	meta["settings"]["optimizer"]["cse"] = m_optimiserSettings->runCSE;
+	meta["settings"]["optimizer"]["constantOptimizer"] = m_optimiserSettings->runConstantOptimiser;
 	solAssert(m_optimiserSettings->constantOptimiserTradeoff < std::numeric_limits<Json::LargestUInt>::max(), "");
-	meta["settings"]["optimizer"]["runs"] = Json::Value(Json::LargestUInt(m_optimiserSettings->constantOptimiserTradeoff));
+	meta["settings"]["optimizer"]["constantOptimizerTradeoff"] = Json::Value(Json::LargestUInt(m_optimiserSettings->constantOptimiserTradeoff));
+
 	meta["settings"]["compilationTarget"][_contract.contract->sourceUnitName()] =
 		_contract.contract->annotation().canonicalName;
 
