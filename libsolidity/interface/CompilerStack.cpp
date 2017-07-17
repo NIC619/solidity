@@ -671,7 +671,17 @@ void CompilerStack::compileContract(
 	for (auto const* dependency: _contract.annotation().contractDependencies)
 		compileContract(*dependency, _compiledContracts);
 
-	shared_ptr<Compiler> compiler = make_shared<Compiler>(m_optimize, m_optimizeRuns);
+	Compiler::OptimiserSettings optimiserSettings;
+	optimiserSettings.runPeephole = true;
+	optimiserSettings.runDeduplicate = true;
+	optimiserSettings.runCSE = true;
+	if (m_optimize)
+	{
+		optimiserSettings.runOrderLiterals = true;
+		optimiserSettings.runConstantOptimiser = true;
+		optimiserSettings.constantOptimiserTradeoff = m_optimizeRuns;
+	}
+	shared_ptr<Compiler> compiler = make_shared<Compiler>(optimiserSettings);
 	Contract& compiledContract = m_contracts.at(_contract.fullyQualifiedName());
 	string onChainMetadata = createOnChainMetadata(compiledContract);
 	bytes cborEncodedMetadata =
@@ -715,7 +725,7 @@ void CompilerStack::compileContract(
 
 	try
 	{
-		Compiler cloneCompiler(m_optimize, m_optimizeRuns);
+		Compiler cloneCompiler(optimiserSettings);
 		cloneCompiler.compileClone(_contract, _compiledContracts);
 		compiledContract.cloneObject = cloneCompiler.assembledObject();
 	}
