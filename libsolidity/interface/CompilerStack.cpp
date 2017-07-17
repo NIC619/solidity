@@ -300,11 +300,6 @@ bool CompilerStack::compile(bool _optimize, unsigned _runs, map<string, h160> co
 	return true;
 }
 
-bool CompilerStack::compile(string const& _sourceCode, bool _optimize, unsigned _runs)
-{
-	return parseAndAnalyze(_sourceCode) && compile(_optimize, _runs);
-}
-
 void CompilerStack::link()
 {
 	for (auto& contract: m_contracts)

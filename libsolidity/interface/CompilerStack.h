@@ -133,9 +133,6 @@ public:
 		unsigned _runs = 200,
 		std::map<std::string, h160> const& _libraries = std::map<std::string, h160>{}
 	);
-	/// Parses and compiles the given source code.
-	/// @returns false on error.
-	bool compile(std::string const& _sourceCode, bool _optimize = false, unsigned _runs = 200);
 
 	/// @returns the assembled object for a contract.
 	eth::LinkerObject const& object(std::string const& _contractName = "") const;
